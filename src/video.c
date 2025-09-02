@@ -1,28 +1,28 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
+#include <libswscale/swscale.h>
 
-#include "rpihub75.h"
-#include "video.h"
 #include "pixels.h"
+#include "rpihub75.h"
 #include "util.h"
+#include "video.h"
 
 /**
  * @brief pass this function to your pthread_create() call to render a video file
  * will render the video file pointed to by scene->shader_file until
  * scene->do_render is false;
- * 
- * @param arg 
- * @return void* 
+ *
+ * @param arg
+ * @return void*
  */
 
-void* render_video_fn(void *arg) {
-    scene_info *scene = (scene_info*)arg;
+void *render_video_fn(void *arg) {
+    scene_info *scene = (scene_info *)arg;
     while (scene->do_render) {
         if (!hub_render_video(scene, scene->shader_file)) {
             break;
@@ -36,9 +36,9 @@ void* render_video_fn(void *arg) {
  * @brief pass this function to your pthread_create() call to render a video file
  * will render the video file pointed to by scene->shader_file until
  * scene->do_render is false; returns once the video is done rendering
- * 
- * @param arg 
- * @return void* 
+ *
+ * @param arg
+ * @return void*
  */
 bool hub_render_video(scene_info *scene, const char *filename) {
     AVFormatContext *format_ctx = NULL;
@@ -119,7 +119,7 @@ bool hub_render_video(scene_info *scene, const char *filename) {
 
     // Set up RGB frame buffer
     int num_bytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, scene->width, scene->height, 1);
-    uint8_t *buffer = (uint8_t *)av_malloc(num_bytes * sizeof(uint8_t)*2);
+    uint8_t *buffer = (uint8_t *)av_malloc(num_bytes * sizeof(uint8_t) * 2);
     av_image_fill_arrays(frame_rgb->data, frame_rgb->linesize, buffer, AV_PIX_FMT_RGB24, scene->width, scene->height, 1);
 
     // Set up scaling context
@@ -150,14 +150,13 @@ bool hub_render_video(scene_info *scene, const char *filename) {
                 }
 
                 // Convert the image from its native format to RGB
-                sws_scale(sws_ctx, (uint8_t const * const *)frame->data,
+                sws_scale(sws_ctx, (uint8_t const *const *)frame->data,
                           frame->linesize, 0, codec_ctx->height,
                           frame_rgb->data, frame_rgb->linesize);
 
-
                 map_byte_image_to_bcm(scene, frame_rgb->data[0]);
 
-		calculate_fps(fps, scene->show_fps);
+                calculate_fps(fps, scene->show_fps);
             }
         }
         av_packet_unref(&packet);
@@ -173,4 +172,3 @@ bool hub_render_video(scene_info *scene, const char *filename) {
 
     return true;
 }
-

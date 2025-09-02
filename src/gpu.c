@@ -1,14 +1,14 @@
 #define _GNU_SOURCE
-#include <stdio.h>
-#include <GLES3/gl3.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-#include <sys/param.h>
-#include <gbm.h>
+#include <GLES3/gl3.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <time.h>
+#include <gbm.h>
 #include <math.h>
+#include <stdio.h>
+#include <sys/param.h>
+#include <time.h>
+#include <unistd.h>
 
 #include <stdlib.h>
 
@@ -24,7 +24,7 @@ const char *test_shader_source =
     "precision mediump float;\n"
     "out vec4 color;\n"
     "void main() {\n"
-    "    color = vec4(1.0, 0.0, 1.0, 1.0);\n"  // Red color
+    "    color = vec4(1.0, 0.0, 1.0, 1.0);\n" // Red color
     "}\n";
 
 /**
@@ -54,10 +54,9 @@ const char *shadertoy_header =
     "    mainImage(fragColor, gl_FragCoord.xy);\n"
     "}\n";
 
-
 /**
  * @brief trivial vertex shader. pass vertex directly to the GPU
- * 
+ *
  */
 const char *vertex_shader_source =
     "#version 310 es\n"
@@ -66,9 +65,8 @@ const char *vertex_shader_source =
     "    gl_Position = position;\n"
     "}\n";
 
-
 // Load texture from a PNG file using stb_image
-GLuint load_texture(const char* filePath) {
+GLuint load_texture(const char *filePath) {
     GLuint textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -93,18 +91,18 @@ GLuint load_texture(const char* filePath) {
 
         // Upload texture to GPU with mipmaps
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);  // Generate mipmaps for texture
+        glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps for texture
 
         // Set texture parameters for wrapping and filtering
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  // Wrap horizontally
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  // Wrap vertically
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);  // Minify filter with mipmaps
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                   // Wrap horizontally
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);                   // Wrap vertically
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // Minify filter with mipmaps
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);               // Magnification filter
 
     } else {
         die("Failed to load texture: %s\n", filePath);
     }
-    
+
     // Free image memory after loading into OpenGL
     stbi_image_free(data);
 
@@ -113,7 +111,7 @@ GLuint load_texture(const char* filePath) {
 
 /**
  * @brief helper method for compiling GLSL shaders
- * 
+ *
  * @param source the source code for the shader
  * @param shader_type one of GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
  * @return GLuint reference to the created shader id
@@ -136,7 +134,7 @@ static GLuint compile_shader(const char *source, const GLenum shader_type) {
 
 /**
  * @brief Create a complete OpenGL program for a shadertoy shader
- * 
+ *
  * @param file name of the shadertoy file to load
  * @return GLuint OpenGL id of the new program
  */
@@ -144,7 +142,7 @@ static GLuint create_shadertoy_program(char *file) {
     long filesize;
     char *src = file_get_contents(file, &filesize);
     if (filesize == 0) {
-        die( "Failed to read shader source\n");
+        die("Failed to read shader source\n");
     }
 
     char *src_with_header = (char *)malloc(filesize + 8192);
@@ -176,13 +174,12 @@ static GLuint create_shadertoy_program(char *file) {
     return program;
 }
 
-
 /**
  * @brief return a new string with the extension changed to new_extension
- * 
- * @param filename 
- * @param new_extension 
- * @return char* 
+ *
+ * @param filename
+ * @param new_extension
+ * @return char*
  */
 char *change_file_extension(const char *filename, const char *new_extension) {
     // Find the last dot in the filename
@@ -218,22 +215,21 @@ char *change_file_extension(const char *filename, const char *new_extension) {
     return new_filename;
 }
 
-
 /**
- * @brief render the shadertoy compatible shader source code in the 
+ * @brief render the shadertoy compatible shader source code in the
  * file pointed to at scene->shader_file
- * 
+ *
  * exits if shader is unable to be rendered
- * 
+ *
  * loop exits and memory is freed if/when scene->do_render becomes false
- * 
+ *
  * frame delay is adaptive and updates to current scene->fps on each frame update
- * 
- * 
+ *
+ *
  * @param arg pointer to the current scene_info object
  */
 void *render_shader(void *arg) {
-    scene_info *scene = (scene_info*)arg;
+    scene_info *scene = (scene_info *)arg;
     debug("render shader %s\n", scene->shader_file);
 
     // Open a file descriptor to the DRM device
@@ -242,11 +238,9 @@ void *render_shader(void *arg) {
         die("Failed to open DRM device /dev/dri/card0\n");
     }
 
-
-	static const EGLint context_attribs[] = {
-		EGL_CONTEXT_CLIENT_VERSION, 2,
-		EGL_NONE
-	};
+    static const EGLint context_attribs[] = {
+        EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL_NONE};
 
     // Create GBM device and surface
     struct gbm_device *gbm = gbm_create_device(fd);
@@ -268,8 +262,7 @@ void *render_shader(void *arg) {
         EGL_GREEN_SIZE, 8,
         EGL_BLUE_SIZE, 8,
         EGL_ALPHA_SIZE, 8,
-        EGL_NONE
-    };
+        EGL_NONE};
     eglChooseConfig(display, attribs, &config, 1, &num_configs);
 
     EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, context_attribs);
@@ -283,11 +276,10 @@ void *render_shader(void *arg) {
 
     // Define a square with two triangles. This is a rendering surface for our fragment shader
     GLfloat vertices[] = {
-        -1.0f,  1.0f, 0.0f,
+        -1.0f, 1.0f, 0.0f,
         -1.0f, -1.0f, 0.0f,
-         1.0f,  1.0f, 0.0f,
-         1.0f, -1.0f, 0.0f
-    };
+        1.0f, 1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f};
 
     GLuint vbo;
     glGenBuffers(1, &vbo);
@@ -298,21 +290,20 @@ void *render_shader(void *arg) {
     glEnableVertexAttribArray(posAttrib);
     glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-
     // setup the timers for frame delays
     struct timespec start_time, end_time, orig_time;
     // uint32_t frame_time_us = 1000000 / scene->fps;
     size_t image_buf_sz = scene->width * (scene->height) * sizeof(uint32_t);
 
     // RGBA format (4 bytes per pixel)
-    GLubyte *restrict pixelsA __attribute__((aligned(16))) = (GLubyte*)malloc(image_buf_sz*(MAX(scene->motion_blur_frames+1,10)));
+    GLubyte *restrict pixelsA __attribute__((aligned(16))) = (GLubyte *)malloc(image_buf_sz * (MAX(scene->motion_blur_frames + 1, 10)));
     if (pixelsA == NULL) {
-        die("unable to allocate %d bytes memory for shader frames...\n", image_buf_sz * (MAX(scene->motion_blur_frames+1,10)));
+        die("unable to allocate %d bytes memory for shader frames...\n", image_buf_sz * (MAX(scene->motion_blur_frames + 1, 10)));
     }
     GLubyte *pixels = pixelsA;
 
     // pointer to the current motion blur buffer
-    GLubyte *pixelsO = pixelsA+(image_buf_sz * scene->motion_blur_frames+1);
+    GLubyte *pixelsO = pixelsA + (image_buf_sz * scene->motion_blur_frames + 1);
 
     // uniforms point to information we will pass to the GLSL shader
     GLint timeLocation = glGetUniformLocation(program, "iTime");
@@ -321,20 +312,17 @@ void *render_shader(void *arg) {
     GLint resLocation = glGetUniformLocation(program, "iResolution");
     GLint chan0Location = glGetUniformLocation(program, "iChannel0");
     GLint chan1Location = glGetUniformLocation(program, "iChannel1");
-    
-
 
     // some variables for each frame iteration
-    float motion_blur[scene->motion_blur_frames+1];
+    float motion_blur[scene->motion_blur_frames + 1];
     float time1, time2 = 0.0f;
-    unsigned long frame= 0;
+    unsigned long frame = 0;
     int frame_num = 0;
-
 
     // calculate motion blur frame weights  (decreasing frame weights)
     float sum = 0;
     for (int i = 0; i < scene->motion_blur_frames; i++) {
-        motion_blur[i] = powf(0.5f, i);  // Exponents symmetric around zero
+        motion_blur[i] = powf(0.5f, i); // Exponents symmetric around zero
         sum += motion_blur[i];
     }
 
@@ -342,7 +330,6 @@ void *render_shader(void *arg) {
     for (int i = 0; i < scene->motion_blur_frames; i++) {
         motion_blur[i] /= sum;
     }
-
 
     GLuint texture0 = 0, texture1 = 0;
     char *chan0 = change_file_extension(scene->shader_file, "channel0");
@@ -363,14 +350,11 @@ void *render_shader(void *arg) {
         }
     }
 
-
-
-
     //printf("GLSL shader compiled. rendering...\n");
     // loop until do_render is false. most likely never exit...
     clock_gettime(CLOCK_MONOTONIC, &start_time);
     clock_gettime(CLOCK_MONOTONIC, &orig_time);
-    while(scene->do_render) {
+    while (scene->do_render) {
         frame++;
         clock_gettime(CLOCK_MONOTONIC, &end_time);
         time1 = (end_time.tv_sec - orig_time.tv_sec) + (end_time.tv_nsec - orig_time.tv_nsec) / 1000000000.0f;
@@ -409,7 +393,7 @@ void *render_shader(void *arg) {
             for (int i = 0; i < scene->width * scene->height * 4; i++) {
                 float accum = 0;
                 for (int f = 0; f < scene->motion_blur_frames; f++) {
-                    GLubyte *frame_idx = pixelsA + (((f + frame_num) % scene->motion_blur_frames)* image_buf_sz);
+                    GLubyte *frame_idx = pixelsA + (((f + frame_num) % scene->motion_blur_frames) * image_buf_sz);
                     accum += ((float)(frame_idx[i])) * motion_blur[(f + frame_num) % scene->motion_blur_frames];
                 }
 
@@ -427,7 +411,6 @@ void *render_shader(void *arg) {
         calculate_fps(scene->fps, scene->show_fps);
     }
 
-
     // Cleanup
     glDeleteBuffers(1, &vbo);
     eglDestroySurface(display, egl_surface);
@@ -440,4 +423,3 @@ void *render_shader(void *arg) {
     close(fd);
     return NULL;
 }
-

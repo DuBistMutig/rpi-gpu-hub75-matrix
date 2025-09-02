@@ -41,11 +41,11 @@
 
 		function blend(red, green, blue) {
 			let c = [];
-			for (let i=1; i<=5; i++) {
+			for (let i = 1; i <= 5; i++) {
 				r = Math.floor(red * (254 / i));
 				g = Math.floor(green * (254 / i));
 				b = Math.floor(blue * (254 / i));
-				c[i]  = "#" + r.toString(16).padStart(2, '0').toUpperCase();
+				c[i] = "#" + r.toString(16).padStart(2, '0').toUpperCase();
 				c[i] += g.toString(16).padStart(2, '0').toUpperCase();
 				c[i] += b.toString(16).padStart(2, '0').toUpperCase();
 				console.log("Color", i, c[i]);
@@ -80,13 +80,13 @@
 
 
 		// next test bars on any key press
-		document.body.addEventListener('keypress', function(event) {
+		document.body.addEventListener('keypress', function (event) {
 			// Function to be called when any key is pressed
 			next_bars(event);
 		});
 
 
-		blend (1.0, 0.0, 0.0);
+		blend(1.0, 0.0, 0.0);
 		// Example usage
 		//setBarColors("red", "green", "blue", "yellow", "purple");
 	</script>

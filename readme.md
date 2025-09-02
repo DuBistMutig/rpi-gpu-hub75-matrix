@@ -28,27 +28,27 @@ shaders/voronoi.glsl (video)
 
 Overview
 --------
-BitBang HUB75 data at steady 20Mhz. It supports a 9600Hz refresh rate on Pi5, and 1500Hz on Pi4, for a single 64x64 panel. Supports up to 3 ports with 2 pixels 
+BitBang HUB75 data at steady 20Mhz. It supports a 9600Hz refresh rate on Pi5, and 1500Hz on Pi4, for a single 64x64 panel. Supports up to 3 ports with 2 pixels
 per port per clock cycle. The library handles the double buffering of frame data. Support for 24bpp RGB and 32bpp RGBA
-source image data. Frame rates of >120Hz with 64 bits of BCM data are easily possible with chain lengths of 3 or more. 
+source image data. Frame rates of >120Hz with 64 bits of BCM data are easily possible with chain lengths of 3 or more.
 Support for up to 64 bits of binary code modulation data (1/64 pwm cycle for 64 different color levels for each RGB value).
 
-GPU support using Linux's Generic Buffer Manager (gbm), GLESv2, and EGL is also included. This means you can use 
+GPU support using Linux's Generic Buffer Manager (gbm), GLESv2, and EGL is also included. This means you can use
 OpenGL fragment shaders to render PWM data to the hub75 panel. Several shadertoy.org shaders are included in the shaders
 directory.
 
-Multiple tone mapping implementations are provided including ACES, reinhard, and exposure as well as saturation and 
+Multiple tone mapping implementations are provided including ACES, reinhard, and exposure as well as saturation and
 contrast controls. Tone mapping compresses the upper and lower end of the linear sRGB data to provide a more natural
 and balanced image on the LED panel. You can implement your own tone mapping by implementing the func_tone_mapper_t
-function and setting it in the active "scene_info". Tone mapping changes take effect on the next frame update and 
-do not add any delay after initial BCM mapping. 
+function and setting it in the active "scene_info". Tone mapping changes take effect on the next frame update and
+do not add any delay after initial BCM mapping.
 
 Gamma correction is also provided. Global gamma can be controlled on the command line. Each red, green, and blue color
 channel also has its own gamma correction to help improve color balance. In practice gamma of about 2.2 produces
-generally good results. red, green, and blue gamma are multiplied against base gamma for each color channel. For 
+generally good results. red, green, and blue gamma are multiplied against base gamma for each color channel. For
 factory color-balanced panels (very common), these should all be set to 1 as #define in include/rpihub75.h (default).
 
-Linear color correction is also provided. You can linearly add + or - red, green and blue to the color channels 
+Linear color correction is also provided. You can linearly add + or - red, green and blue to the color channels
 by adjusting these values in the scene controls. This will affect the generated BCM data that is mapped on every frame.
 
 No hardware clocks are required for operation so you can run the code with only group gpio
@@ -68,10 +68,10 @@ active 3 port boards to ensure proper level translation and to map the address l
 
 Glossary
 --------
-### PWM 
+### PWM
 modulates the pulse width of a signal (i.e., the "on" time vs "off" time) to control the average power delivered to a device, typically using fixed frequency and variable duty cycles. PWM is sometimes used in place of BCM in this document.
 
-### BCM 
+### BCM
 modulates the signal based on binary values. It uses a binary sequence, where each bit's on/off duration is proportional to its weight in the sequence. BCM is more efficient at low brightness levels than PWM, as it distributes "on" periods more evenly.
 
 ### Gamma
@@ -79,7 +79,7 @@ mapping linear color space to a compressed color space where colors in the lower
 are spread out so that the color values ramp exponentially. This more closely matches human eye perception but does
 remove dynamic range at the low end of the spectrum producing image quantization in darker regions.
 
-### Dithering 
+### Dithering
 When you apply gamma correction, you compress the dynamic range of your RGB values, especially for dark colors. The colors that should have been represented by a smooth gradient are reduced to just a few distinct levels. Dithering helps by distributing the error introduced by this quantization process over neighboring pixels.
 
 ###Tone Mapping
@@ -88,10 +88,10 @@ mapping function. These functions are designed to compress the upper and lower r
 Range in a lower dynamic range format. Several are provided and they are easy to implement. Experiment with what works for
 your scene. Reference: https://www.cl.cam.ac.uk/teaching/2122/AGIP/07_HDR_and_tone_mapping_1pp.pdf
 
-###GLSL 
+###GLSL
 (OpenGL Shading Languate) GLSL is a high-level shading language based on the C programming language, designed for programming shaders in OpenGL API. It allows custom vertex, fragment and compute shaders to control rendering pipeline of 3D graphics applications, enabling effects such as lighting, texture mapping, and other visual effects.
 
-###SDF 
+###SDF
 (Sine Distance Field): a function that defines a shape in 3d space. The function produces outputs such that points outside the object are positive values, the surface of the shape is at point 0 and points inside the shape are negative.
 
 Build & Install - Raspbian Lite
@@ -130,7 +130,7 @@ make example
 ./example
 # render a shader to 1 64x64 panel, bit depth 32, 120 fps, gamma 1.6, 50% brightness
 ./example -x 64 -y 64 -d 32 -f 120 -g 1.6 -b 128 -s shaders/cartoon.glsl
-# render a IQ's "happy jumping" shader to 128x128 panel, bit depth 64, 2 ports, 2 panels, 60 fps, 
+# render a IQ's "happy jumping" shader to 128x128 panel, bit depth 64, 2 ports, 2 panels, 60 fps,
 # mirrored and flipped, 255 brightness (100%), gamma 2.4, saturation tone mapping level 1.8
 ./example -x 128 -y 128 -d 64 -p 2 -c 2 -f 60 -i mirror_flip -b 255 -g 2.4 -t saturation:1.8 -s shaders/happy_jump.glsl
 # render the triangle demo on the CPU, see example.c for basic library usage.
@@ -138,7 +138,7 @@ make example
 # render the lines gpu shader, 24 bit, with strong Floyd Steinberg dithering (-l 1-254), gamma 2.2
 ./example -x 128 -y 128 -d 24 -f 60 -l 250 -g 2.2 -s shaders/lines.glsl
 # coming soon, mp4 drawing, network drawing, improved dithering
-``` 
+```
 
 Compile RealTime Kernel
 -----------------------
@@ -157,7 +157,7 @@ cd linux
 zcat ../patch-6.6.58-rt45.patch.gz | patch -p1 --dry-run # make sure patch applies correctly
 zcat ../patch-6.6.58-rt45.patch.gz | patch -p1
 KERNEL=kernel_2712                                       # use kernel_8 for rpi1-4
-make bcm2712_defconfig                                   # use bcm2711_defconfig for rpi1-4 
+make bcm2712_defconfig                                   # use bcm2711_defconfig for rpi1-4
 
 make menuconfig                                          # General -> Preemption Model -> select Real Time option
 vi .config                                               # custome CONFIG_LOCALVERSION (helps you identify your kernel when runing uname -a)
@@ -198,14 +198,14 @@ Library Operation:
 See the header files for function definitions.
 
 The library bit bangs the data out to the HUB75 panel at a steady 20Mhz. This is significantly faster on my scope than
-hzeller's implementation by up to 10x. The software forks a thread that pulls from the PWM data and continuously pulses 
+hzeller's implementation by up to 10x. The software forks a thread that pulls from the PWM data and continuously pulses
 the rgb pins and the clock line. After each row, the Output Enable pin is driven high and the data is latched and the next
-row is advanced. After 32 rows (or 1/2 panel height) are written to all 3 ports, the BCM buffer is advanced and the 
+row is advanced. After 32 rows (or 1/2 panel height) are written to all 3 ports, the BCM buffer is advanced and the
 update begins again for the next "bit plane".
 
 Since we are clocking in 2 rows of RGB data per clock cycle (R1, R2, G1, G2, B1, B2) at 20Mhz it takes 2048 clock cycles
 to shift in data for 1 64x64 panel. This translates to a single 64x64 panel refresh rate of 9700Hz and allows us to chain
-4 panels together per port at >2400Hz. 
+4 panels together per port at >2400Hz.
 
 Rather than call "SetPixel", you draw directly to a 24bpp or 32bpp buffer and then call this library's function
 map_byte_image_to_bcm() to translate the 24bpp RGB buffer to the BCM signal. The buffer that this function writes the BCM
@@ -256,13 +256,13 @@ Example using your own drawing buffer:
 ```c
 scene_info *scene = default_scene(argc, argv);
 // example scene->stride is 3 for 24bpp (3 bytes per pixel)
-uint8_t *imageRGB = (uint8_t*)malloc(scene->width * scene->height * scene->stride); 
+uint8_t *imageRGB = (uint8_t*)malloc(scene->width * scene->height * scene->stride);
 
 int x = 32;
 int y = 16;
-uint8_t red = 255; 
-uint8_t green = 128; 
-uint8_t blue = 64; 
+uint8_t red = 255;
+uint8_t green = 128;
+uint8_t blue = 64;
 
 // scene->stride is 3
 imageRGB[((y*scene->width) +x *scene->stride)] = red;
@@ -296,11 +296,11 @@ b: 0,0,0,0,0,0,0,0,0,0,0...
 these values would be precomputed after every frame and toggled for each display update (9600-2400Hz)
 
 
-each bit plane (that is a uint32_t with all of the pin toggles for all 3 output ports for a particular pixel on a single 
+each bit plane (that is a uint32_t with all of the pin toggles for all 3 output ports for a particular pixel on a single
 bit plane, there are bit_depth number of bit planes per image) is updated atomically in a single write. This means there
 is no need for double buffering to achieve a flicker-free display. Simply call map_byte_image_to_bcm with your new image
 buffer as often as you like. The data will be overwritten and the new PWM data will be updated immediately. This allows you
-to draw to the display at up to 9600Hz (depending on the number of chained displays) however frame rates of about 120fps seem 
+to draw to the display at up to 9600Hz (depending on the number of chained displays) however frame rates of about 120fps seem
 to produce excellent results and higher frame rates have diminishing returns after that.
 
 Because we have a 9600-2400Hz refresh rate we can use up to 64bit PWM cycles. That means that each RGB value
@@ -311,7 +311,7 @@ added gamma correction. See color calibration further in this document for detai
 
 
 brightness is controlled via a 9K "jitter mask". 9K of random bytes are generated and if each random value is > brightness
-level (uint8_t) the OE pin is toggled for the mask. when OE is toggled high, the display is toggled off. By applying this 
+level (uint8_t) the OE pin is toggled for the mask. when OE is toggled high, the display is toggled off. By applying this
 mask for every pixel, we are able to output our normal BCM color data and toggle the brightness value on or off randomly
 averaging out to the current brightness level. This provides fine-tuned brightness control (255 levels) while
 maintaining excellent color balance.
@@ -392,19 +392,19 @@ make lib
 # compile version with GPU support
 make libgpu
 # compile both versions
-make 
+make
 # install headers and libraries in /usr/local
 sudo make install
 # you may need to manullay run "sudo ldconfig" depending on your OS environment
 
 # to compile the example app without GPU support:
-gcc -O3 -Wall -lrpihub75 example.c -o example 
+gcc -O3 -Wall -lrpihub75 example.c -o example
 
 # to compile the example app with GPU support:
-gcc -O3 -Wall -lrpihub75_gpu example.c -o example 
+gcc -O3 -Wall -lrpihub75_gpu example.c -o example
 
 # print command line configuration help
-./example 
+./example
 
 # run glsl shader app for 1 64x64 panel on port0, 120fps, 48 bits bcm depth, gamma 2.2, 50% brightness
 ./example -p 1 -c 1 -x 64 -y 64 -d 48 -g 2.2 -f 120 -b 128 -s shaders/cartoon.glsl
@@ -467,7 +467,7 @@ int main(int argc, char **argv)
 
     // Ensure that the scene is valid
     check_scene(scene);
-    
+
     // Create another thread to run the frame drawing function (GPU or CPU)
     pthread_t update_thread;
     // Use the GPU shader renderer if we have one, else use the CPU renderer above
@@ -485,7 +485,7 @@ int main(int argc, char **argv)
 
 Command Line Arguments
 ----------------------
-You can configure your setup for your application from the command line if you so choose by adding the call: 
+You can configure your setup for your application from the command line if you so choose by adding the call:
 ```c
     scene_info *scene = default_scene(argc, argv);
 ```
@@ -526,13 +526,13 @@ Odds and Ends
 
 I have considered adding image dithering. Since we are going from 8-bit data (24bpp) down to 5 or 6-bit data (32 - 64 bit
 pwm values) we are losing 2-3 bits of data per pixel. What we lose in temporal data (value) we can reintroduce to the image
-spatially. Those 2-3 bits of information can be added to the neighboring pixels using ordered dithering or floyd Steinberg 
+spatially. Those 2-3 bits of information can be added to the neighboring pixels using ordered dithering or floyd Steinberg
 dithering by slightly increasing or decreasing the RGB values of the neighboring pixels based on this loss of information.
 There is some code to achieve this but I have not had the results I would like to see so this is still a work in progress.
 If this is something you are interested in, drop me a line, send me a link to relevant information implementations or send
 a PR.
 
-I am currently investigating chaining multiple rp2040 chips to multiple chains of HUB75 panels to improve the image 
+I am currently investigating chaining multiple rp2040 chips to multiple chains of HUB75 panels to improve the image
 stability and the number of supported chained panels. Current thinking is rpi5 has 2 spi lines which are capable of 50Mhz
 operation. Split between 4 rp2040s that allows for 25Mhz data update to each rp2040. With 8 panels attached to each rp2040
 we could address 32 panels with 100Mhz total bandwidth. If we downsample frame data to a 256 color palette, we can send
@@ -549,7 +549,7 @@ to the 6 color registers on the current BCM cycle. This data format would allow 
 the rp2040 256KB sRAM which still maintains good color response and excellent refresh rates. This method would also allow
 us to shift in data faster than the pi5 20Mhz upper limit on GPIO and clock data in at the limit of the HUB75 panels (32-40Mhz)
 
-So far I have only been working on the math to see if this makes any sense. Since it seems possible I might make a rp2040 
+So far I have only been working on the math to see if this makes any sense. Since it seems possible I might make a rp2040
 implementation and see if 50Mhz bandwidth is achievable over grounded cat5e. After that, programming the PIO to perform the
 BCM palette lookup and shit out the data at 20Mhz+ will be the final test to see if this is a viable method of controlling
 additional panels at a high refresh rate.

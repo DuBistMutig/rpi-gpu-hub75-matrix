@@ -4,9 +4,9 @@
  * gcc -O3 -Wall -lrpihub75_gpu example.c -o example
  * ./example
  * # this should display command line options
- * # example for 4 64x64 panels (128x128 pixels) 2 chains connected to 2 ports, 
+ * # example for 4 64x64 panels (128x128 pixels) 2 chains connected to 2 ports,
  * # 48 pwm color bits, 192 brightness, 2.2 gamma, render the cartoon.glsl shader
- * # at 120 fps with 
+ * # at 120 fps with
  * ./example -w 128 -h 128 -p 2 -c 2 -d 48 -b 192 -g 2.2 -f 120 -s shaders/cartoon.glsl
  *
  */
@@ -17,20 +17,20 @@
 //#define CONSOLE_DEBUG 1
 
 #include <pthread.h>
+#include <rpihub75/gpu.h>
+#include <rpihub75/pixels.h>
 #include <rpihub75/rpihub75.h>
 #include <rpihub75/util.h>
-#include <rpihub75/gpu.h>
 #include <rpihub75/video.h>
-#include <rpihub75/pixels.h>
 
 unsigned int ri(unsigned int max) {
-	return rand() % max;
+    return rand() % max;
 }
 
 // our CPU rendering implementation, see gpu.c for shader rendering details
-void* render_cpu(void *arg) {
+void *render_cpu(void *arg) {
     // get the current scene info
-    scene_info *scene = (scene_info*)arg;
+    scene_info *scene = (scene_info *)arg;
     // allocate  memory for image data, we can also use the preallocated scene->image if that's easier
     uint8_t *img = malloc(scene->width * scene->height * scene->stride);
     memset(img, 0, scene->width * scene->height * scene->stride);
@@ -38,14 +38,13 @@ void* render_cpu(void *arg) {
     debug("rendering on CPU\n");
     // need to pause a second for gpio to be setup
     usleep(50000);
-    for(;;) {
+    for (;;) {
         // darken every pixel in the image for each byte of R,G,B data
         if (1) {
-            for (int i=0; i<scene->height*scene->width*scene->stride; i++) {
+            for (int i = 0; i < scene->height * scene->width * scene->stride; i++) {
                 scene->image[i] = (uint8_t)scene->image[i] * 0.96f;
             }
         }
-
 
         // generate some random points on the screen
         uint16_t x1 = ri(scene->width);
@@ -77,9 +76,7 @@ void* render_cpu(void *arg) {
     }
 }
 
-
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     printf("rpi-gpu-hub75 v0.2 example program %s pin out configuration\n", ADDRESS_TYPE);
     srand(time(NULL));
 
@@ -90,7 +87,6 @@ int main(int argc, char **argv)
     // ensure that the scene is valid
     check_scene(scene);
 
-    
     // create another thread to run the frame drawing function (GPU or CPU)
     pthread_t update_thread;
     // use the CPU renderer if no shader or video file was passed
@@ -111,8 +107,7 @@ int main(int argc, char **argv)
         die("unable to open file %s\n", scene->shader_file);
     }
 
-
-    // this function will never return. make sure you have already forked your drawing thread 
+    // this function will never return. make sure you have already forked your drawing thread
     // before calling this function
     render_forever(scene);
 }
