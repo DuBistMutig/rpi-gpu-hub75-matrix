@@ -146,7 +146,6 @@
     printf("microseconds (1/1000 ms): %ld\n", elapsed_time);
 
 #ifdef ADA_HAT
-
 #define ADDRESS_TYPE "ADAFRUIT_HAT"
 
 #define ADDRESS_P0_G1 13
@@ -179,8 +178,40 @@
 #define ADDRESS_CLK 17
 #define ADDRESS_OE 4
 
-#else
+#elif ADA_BONNET
+#define ADDRESS_TYPE "ADA_BONNET"
 
+#define ADDRESS_P0_R1 5
+#define ADDRESS_P0_G1 13
+#define ADDRESS_P0_B1 6
+#define ADDRESS_P0_R2 12
+#define ADDRESS_P0_G2 16
+#define ADDRESS_P0_B2 23
+
+#define ADDRESS_A 22
+#define ADDRESS_B 26
+#define ADDRESS_C 27
+#define ADDRESS_D 20
+#define ADDRESS_E 24
+
+#define ADDRESS_STROBE 21
+#define ADDRESS_CLK 17
+#define ADDRESS_OE 4
+
+#define ADDRESS_P1_R1 0
+#define ADDRESS_P1_G1 0
+#define ADDRESS_P1_B1 0
+#define ADDRESS_P1_R2 0
+#define ADDRESS_P1_G2 0
+#define ADDRESS_P1_B2 0
+#define ADDRESS_P2_R1 0
+#define ADDRESS_P2_G1 0
+#define ADDRESS_P2_B1 0
+#define ADDRESS_P2_R2 0
+#define ADDRESS_P2_G2 0
+#define ADDRESS_P2_B2 0
+
+#else
 #define ADDRESS_TYPE "HZELLER_HAT"
 /**
      * standard pin assignments
